@@ -6,6 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,17 +21,49 @@ import org.springframework.web.server.ResponseStatusException;
 import skit.project.bill_payment.DTO.OrgnisationDTO;
 import skit.project.bill_payment.common.DuplicateEntryException;
 import skit.project.bill_payment.entity.OrgnisationEntity;
+import skit.project.bill_payment.helper.JwtUtil;
+import skit.project.bill_payment.model.JwtRequest;
+import skit.project.bill_payment.model.JwtResponse;
 import skit.project.bill_payment.serviceImpl.OrgnisationDetailService;
 
 @RestController
 public class OrgnisationController {
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    
+    @Autowired
     AuthenticationManager authenticationManager;
 
     @Autowired 
     @Qualifier("orgnisationdetailservice")
     OrgnisationDetailService orgnisationDetailService;
+
+    
+
+    @PostMapping("/orgnisationlogin")
+    public ResponseEntity<?> genrateToken(@RequestBody JwtRequest jwtRequest) throws Exception {
+        System.out.println(jwtRequest);
+        try {
+            this.authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(jwtRequest.getName(), jwtRequest.getPassword()));
+
+        } catch (UsernameNotFoundException e) {
+            e.printStackTrace();
+            throw new Exception("Bad Credentials");
+        } catch (Exception e) {
+            throw new Exception("Invalid User");
+        }
+
+        UserDetails userDetails = this.orgnisationDetailService.loadUserByUsername(jwtRequest.getName());
+
+        String token = this.jwtUtil.generateToken(userDetails);
+
+        System.out.println("JWT Token " + token);
+
+        return ResponseEntity.ok(new JwtResponse(token));
+    }
 
   
     @GetMapping("/getorgnisation")
