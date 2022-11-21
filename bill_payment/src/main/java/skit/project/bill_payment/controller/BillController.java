@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import skit.project.bill_payment.entity.BillEntity;
 import skit.project.bill_payment.serviceImpl.BillService;
 
 @RestController
+@CrossOrigin(origins="*")
 public class BillController {
     
 
@@ -26,7 +28,6 @@ public class BillController {
     @Qualifier("billservice")
     BillService billService;
 
-  
     @GetMapping("/getbill")
     public ResponseEntity<BillDTO> getBill(@RequestParam("id") int id) {
        BillDTO bill = billService.getBillById(id);
@@ -34,8 +35,9 @@ public class BillController {
     }
     
     
-  
+    
     @GetMapping("/getbills")
+    @CrossOrigin(origins = "http://127.0.0.1:5500")
     public Page<BillDTO> findallbills(@RequestParam("start")int start,@RequestParam("pageSize") int pageSize){
         return billService.getAllBills(start,pageSize);
     }
@@ -45,6 +47,7 @@ public class BillController {
         BillEntity billEntity = new BillEntity();
         try {
                 System.out.println(billService.billValidation(bill.getCustomerId(),bill.getYear(), bill.getMonth()));
+                bill.setAmount(bill.getNewspaperAmount()+bill.getTelephoneAmount());
                 billEntity = billService.saveBill(bill);
         }
         catch (DuplicateEntryException e) {
@@ -68,4 +71,11 @@ public class BillController {
            return "Deleted Succesfully";
     }
     
+    @GetMapping("/getbillsbycustomerid")
+    @CrossOrigin(origins = "http://127.0.0.1:5500")
+    public Page<BillDTO> findallbillsbycustomerId(@RequestParam("customerId")int customerId ,@RequestParam("start")int start,@RequestParam("pageSize") int pageSize){
+        return billService.getAllBillByCustomerId(customerId,start,pageSize);
+    }
+
+
 }

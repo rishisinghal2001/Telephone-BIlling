@@ -11,7 +11,7 @@ import org.hibernate.annotations.Where;
 @Entity(name = "payment_detail")
 @Table(name = "payment_detail")
 @Where(clause = "is_delete = 'false'")
-public class PaymentEnity extends BaseEntity {
+public class PaymentEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +20,15 @@ public class PaymentEnity extends BaseEntity {
     private int billId;
     private String mode;
     private boolean isDelete;
+    
+    private int amount;
+    
+    public int getAmount() {
+        return amount;
+    }
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
     public int getPaymentId() {
         return paymentId;
     }

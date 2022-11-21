@@ -14,10 +14,11 @@ public interface IOrgnisationDetailService {
     public UserDetails loadUserByUsername(String orgnisation) throws UsernameNotFoundException;
     public Page<OrgnisationDTO> getAllOrgnisations(int start,int pageSize);
     public OrgnisationEntity saveOrgisation(OrgnisationDTO  orgnisation);
-	public OrgnisationDTO getOrgnisationById(int  id);
+	public OrgnisationDTO getOrgnisationById(String  email);
 	public String orgnisationValidation(String email) throws DuplicateEntryException ;
-	public void deleteOrgnisation(int id);
-	public OrgnisationEntity updateOrgnisation(int id, String orgnName, String orgnPass );
-    public OrgnisationEntity changeorgnisationPassword(int id , String password);
+	public void deleteOrgnisation(String email);
+	public OrgnisationEntity updateOrgnisation(String email, String orgnName, String orgnPass );
+    public OrgnisationEntity changeorgnisationPassword(String email , String password);
     public Page<CustomerDTO> getAllCustomerOfAOrgnisation(String orgnisation,int start,int pageSize);
+    public int getOrgnisationIdByEmail(String email);
 }

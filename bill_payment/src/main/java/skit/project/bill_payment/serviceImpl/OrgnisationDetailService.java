@@ -28,7 +28,7 @@ import skit.project.bill_payment.repository.OrgnisationRepository;
 import skit.project.bill_payment.service.IOrgnisationDetailService;
 
 @Service("orgnisationdetailservice")
-public class OrgnisationDetailService  implements UserDetailsService,IOrgnisationDetailService  {
+public class OrgnisationDetailService  implements UserDetailsService, IOrgnisationDetailService  {
     @Autowired
     @Qualifier("orgnisationrepository")
     OrgnisationRepository orgnisationRepository;
@@ -41,12 +41,15 @@ public class OrgnisationDetailService  implements UserDetailsService,IOrgnisatio
     OrikaObjectMapper orikaObjectMapper;
 
     @Override
-    public UserDetails loadUserByUsername(String orgnisationName) throws UsernameNotFoundException {
-        if (orgnisationName.equals("BSNL")) {
-            return new User("Rishi", "BSNL@123", new ArrayList<>());
-        } else {
-            throw new UsernameNotFoundException("Orgnisation not found !!");
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        List <OrgnisationDTO> orgnisationList = new ArrayList<OrgnisationDTO>();
+        orgnisationList = getAllOrgnisations(0,199).getContent();
+        for(int i=0;i<orgnisationList.size();i++) {
+            if(orgnisationList.get(i).getEmail().equals(email))
+                return new User(orgnisationList.get(i).getEmail(),orgnisationList.get(i).getOrgnPassword(), new ArrayList<>());
         }
+        
+        throw new UsernameNotFoundException("Orgnisation not found !!");
     }
 
     @Override
@@ -78,9 +81,9 @@ public class OrgnisationDetailService  implements UserDetailsService,IOrgnisatio
     }
 
     @Override
-    public OrgnisationDTO getOrgnisationById(int id) {
+    public OrgnisationDTO getOrgnisationById(String email) {
         OrgnisationDTO orgnisation = new OrgnisationDTO();
-        Optional <OrgnisationEntity> OrgnisationOp = orgnisationRepository.findById(id);
+        Optional <OrgnisationEntity> OrgnisationOp = orgnisationRepository.findById(getOrgnisationIdByEmail(email));
         if (OrgnisationOp.isPresent()) {
             OrgnisationEntity OrgnisationEntity = OrgnisationOp.get();
             
@@ -93,7 +96,7 @@ public class OrgnisationDetailService  implements UserDetailsService,IOrgnisatio
             }
         else
         {
-            System.out.println("Customer not existed");
+            System.out.println("Orgnisation not existed");
         }
         return orgnisation;
     }
@@ -110,8 +113,8 @@ public class OrgnisationDetailService  implements UserDetailsService,IOrgnisatio
     }
 
     @Override
-    public void deleteOrgnisation(int id) {
-        Optional <OrgnisationEntity> orgnisationOp = orgnisationRepository.findById(id);
+    public void deleteOrgnisation(String email) {
+        Optional <OrgnisationEntity> orgnisationOp = orgnisationRepository.findById(getOrgnisationIdByEmail(email));
         if (orgnisationOp.isPresent()) {
             Timestamp lastModifiedDate = new Timestamp(System.currentTimeMillis());
             OrgnisationEntity orgnisationEntity = orgnisationOp.get();
@@ -126,8 +129,8 @@ public class OrgnisationDetailService  implements UserDetailsService,IOrgnisatio
     }
     
     @Override
-    public OrgnisationEntity updateOrgnisation(int id,String orgnName, String orgnPass ) {
-        OrgnisationDTO OrgnisationDTO = getOrgnisationById(id);
+    public OrgnisationEntity updateOrgnisation(String email,String orgnName, String orgnPass ) {
+        OrgnisationDTO OrgnisationDTO = getOrgnisationById(email);
         OrgnisationEntity orgnisationEntity = new OrgnisationEntity();
         if(OrgnisationDTO==null)
             System.out.println("Wrong Customer ID");
@@ -145,8 +148,8 @@ public class OrgnisationDetailService  implements UserDetailsService,IOrgnisatio
     }
 
     @Override
-    public OrgnisationEntity changeorgnisationPassword(int id ,  String password) {
-        OrgnisationDTO orgnisationDTO = getOrgnisationById(id);
+    public OrgnisationEntity changeorgnisationPassword(String email ,  String password) {
+        OrgnisationDTO orgnisationDTO = getOrgnisationById(email);
         OrgnisationEntity orgnisationEntity = new OrgnisationEntity();
         if(orgnisationDTO==null)
             System.out.println("Wrong Customer ID");
@@ -178,6 +181,20 @@ public class OrgnisationDetailService  implements UserDetailsService,IOrgnisatio
         return new PageImpl<>(customerList, pageable, pageCustomerEntity.getTotalElements());
     
     }
-    
+
+  
+    @Override
+    public int getOrgnisationIdByEmail(String email) {
+        int id=0;
+        List <OrgnisationDTO> orgnisationList = new ArrayList<OrgnisationDTO>();
+        orgnisationList = getAllOrgnisations(0,199).getContent();
+        for(int i=0;i<orgnisationList.size();i++) {
+            if(orgnisationList.get(i).getEmail().equals(email))
+                id=orgnisationList.get(i).getOrgnisationId();
+        }
+        return id; 
+    }
+
+  
     
 }

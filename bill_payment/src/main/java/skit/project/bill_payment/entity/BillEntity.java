@@ -1,6 +1,8 @@
 package skit.project.bill_payment.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -12,12 +14,40 @@ import org.hibernate.annotations.Where;
 public class BillEntity extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int billId;
     private int customerId;
     private int year;
     private String month;
     private boolean status;
     private int amount;
+    private int telephoneAmount;
+    private int newspaperAmount;
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public int getTelephoneAmount() {
+        return telephoneAmount;
+    }
+
+    public void setTelephoneAmount(int telephoneAmount) {
+        this.telephoneAmount = telephoneAmount;
+    }
+
+    public int getNewspaperAmount() {
+        return newspaperAmount;
+    }
+
+    public void setNewspaperAmount(int newspaperAmount) {
+        this.newspaperAmount = newspaperAmount;
+    }
+
     private java.sql.Date billGenrateDate;
     private java.sql.Date billPaymentDate;
     private boolean isDelete;

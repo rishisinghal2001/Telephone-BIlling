@@ -36,12 +36,16 @@ public class CustomerDetailService implements  UserDetailsService , ICustomerDet
     OrikaObjectMapper orikaObjectMapper;
 
     @Override
-    public UserDetails loadUserByUsername(String customerName) throws UsernameNotFoundException {
-        if (customerName.equals("Rishi")) {
-            return new User("Rishi", "Rishi@123", new ArrayList<>());
-        } else {
-            throw new UsernameNotFoundException("User not found !!");
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        List <CustomerDTO> customerList = new ArrayList<CustomerDTO>();
+        customerList = getAllCustomers(0,199).getContent();
+        for(int i=0;i<customerList.size();i++) {
+            if(customerList.get(i).getEmail().equals(email))
+                return new User(customerList.get(i).getEmail(),customerList.get(i).getUserPassword(), new ArrayList<>());
         }
+        
+        throw new UsernameNotFoundException("Customer not found !!");
+        
     }
 
     @Override
@@ -73,9 +77,9 @@ public class CustomerDetailService implements  UserDetailsService , ICustomerDet
     }
 
     @Override
-    public CustomerDTO getCustomerById(int id) {
+    public CustomerDTO getCustomerById(long phoneNo) {
         CustomerDTO customer = new CustomerDTO();
-        Optional <CustomerEntity> customerOp = customerRepository.findById(id);
+        Optional <CustomerEntity> customerOp = customerRepository.findById(getCustomerIdByPhoneNo(phoneNo));
         if (customerOp.isPresent()) {
             CustomerEntity customerEntity = customerOp.get();
             
@@ -94,19 +98,19 @@ public class CustomerDetailService implements  UserDetailsService , ICustomerDet
     }
 
     @Override
-    public String customerValidation(String email) throws DuplicateEntryException {
+    public String customerValidation(long phoneNo) throws DuplicateEntryException {
         List <CustomerDTO> customerList = new ArrayList<CustomerDTO>();
         customerList = getAllCustomers(0,199).getContent();
         for(int i=0;i<customerList.size();i++) {
-            if(customerList.get(i).getEmail().equals(email))
-                throw new DuplicateEntryException("Email Already Exists ");
+            if(customerList.get(i).getPhoneNo()==phoneNo)
+                throw new DuplicateEntryException("Phone no Already Exists ");
         }
         return "Entry Saved Sucessfully";   
     }
 
     @Override
-    public void deleteCustomer(int id) {
-        Optional <CustomerEntity> custoOp = customerRepository.findById(id);
+    public void deleteCustomer(long phoneNo) {
+        Optional <CustomerEntity> custoOp = customerRepository.findById(getCustomerIdByPhoneNo(phoneNo));
         if (custoOp.isPresent()) {
             Timestamp lastModifiedDate = new Timestamp(System.currentTimeMillis());
             CustomerEntity customerEntity = custoOp.get();
@@ -121,8 +125,8 @@ public class CustomerDetailService implements  UserDetailsService , ICustomerDet
     }
 
     @Override
-    public CustomerEntity updateCustomer(int id,String fName, String lName,char gender, String password ) {
-        CustomerDTO customerDTO = getCustomerById(id);
+    public CustomerEntity updateCustomer(long phoneNo,String fName, String lName,char gender,String orgnName,String password ) {
+        CustomerDTO customerDTO = getCustomerById(getCustomerIdByPhoneNo(phoneNo));
         CustomerEntity customerEntity = new CustomerEntity();
         if(customerDTO==null)
             System.out.println("Wrong Customer ID");
@@ -133,6 +137,7 @@ public class CustomerDetailService implements  UserDetailsService , ICustomerDet
             customerEntity.setLastName(lName);
             customerEntity.setGender(gender);
             customerEntity.setUserPassword(password);
+            customerEntity.setOrgnisationName(orgnName);
             customerEntity.setLastModifiedDate(lastModifiedDate);
             customerRepository.save(customerEntity);
             System.out.println("Sucessfully Changed");
@@ -142,8 +147,8 @@ public class CustomerDetailService implements  UserDetailsService , ICustomerDet
     }
 
     @Override
-    public CustomerEntity changeCustomerPassword(int id ,  String password) {
-        CustomerDTO customerDTO = getCustomerById(id);
+    public CustomerEntity changeCustomerPassword(long phoneNo ,  String password) {
+        CustomerDTO customerDTO =getCustomerById(getCustomerIdByPhoneNo(phoneNo));
         CustomerEntity customerEntity = new CustomerEntity();
         if(customerDTO==null)
             System.out.println("Wrong Customer ID");
@@ -157,6 +162,48 @@ public class CustomerDetailService implements  UserDetailsService , ICustomerDet
         }
         
         return customerEntity;
+    }
+
+    @Override
+    public int getCustomerIdByPhoneNo(long phoneNo) {
+        int id=0;
+        List <CustomerDTO> customerList = new ArrayList<CustomerDTO>();
+        customerList = getAllCustomers(0,199).getContent();
+        for(int i=0;i<customerList.size();i++) {
+            if(customerList.get(i).getPhoneNo()==phoneNo)
+               id=customerList.get(i).getCustomerId(); 
+        }
+        return id;   
+   
+    }
+    
+    @Override
+    public long getPhoneNoByEmail(String email) {
+        long phoneNo=0;
+        List <CustomerDTO> customerList = new ArrayList<CustomerDTO>();
+        customerList = getAllCustomers(0,199).getContent();
+        for(int i=0;i<customerList.size();i++) {
+            if(customerList.get(i).getEmail().equals(email))
+               phoneNo=customerList.get(i).getPhoneNo(); 
+        }
+        return phoneNo;   
+   
+    }
+
+    public Page<CustomerDTO> getAllCustomersByOrgnisationName(String name, int start, int pageSize) {
+        Pageable pageable =  PageRequest.of(start, pageSize);
+        Page<CustomerEntity> pageCustomerEntity = customerRepository.findAll(pageable);
+        List<CustomerDTO> customerList = new ArrayList<>();
+        for (int i = 0; i < pageCustomerEntity.getContent().size() ; i++) {
+           CustomerDTO customer = new CustomerDTO();
+           if(pageCustomerEntity.getContent().get(i).isDelete()==false && pageCustomerEntity.getContent().get(i).getOrgnisationName().equals(name)) {
+               customer=orikaObjectMapper.getMapper().map(pageCustomerEntity.getContent().get(i), CustomerDTO.class );   
+               customerList.add(customer);                     
+           }
+        }
+        System.out.println();
+        return new PageImpl<>(customerList, pageable, pageCustomerEntity.getTotalElements());
+    
     }
     
     

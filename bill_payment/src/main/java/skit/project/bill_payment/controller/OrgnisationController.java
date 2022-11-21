@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,7 @@ import skit.project.bill_payment.model.JwtResponse;
 import skit.project.bill_payment.serviceImpl.OrgnisationDetailService;
 
 @RestController
+@CrossOrigin(origins="*")
 public class OrgnisationController {
 
     @Autowired
@@ -41,7 +43,6 @@ public class OrgnisationController {
     OrgnisationDetailService orgnisationDetailService;
 
     
-
     @PostMapping("/orgnisationlogin")
     public ResponseEntity<?> genrateToken(@RequestBody JwtRequest jwtRequest) throws Exception {
         System.out.println(jwtRequest);
@@ -65,15 +66,13 @@ public class OrgnisationController {
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
-  
     @GetMapping("/getorgnisation")
-    public ResponseEntity<OrgnisationDTO> getorgnisation(@RequestParam("id") int id) {
-       OrgnisationDTO orgnisation = orgnisationDetailService.getOrgnisationById(id);
+    public ResponseEntity<OrgnisationDTO> getorgnisation(@RequestParam("email") String email) {
+       OrgnisationDTO orgnisation = orgnisationDetailService.getOrgnisationById(email);
        return new ResponseEntity<OrgnisationDTO>(orgnisation, HttpStatus.OK);
     }
     
     
-  
     @GetMapping("/getorgnisations")
     public Page<OrgnisationDTO> findallorgnisations(@RequestParam("start")int start,@RequestParam("pageSize") int pageSize){
         return orgnisationDetailService.getAllOrgnisations(start,pageSize);
@@ -100,18 +99,17 @@ public class OrgnisationController {
     }
     
    
-   
     @DeleteMapping("/deleteorgnisation")
-    public String deleteCustomer(@RequestParam("id") int id) {
-           orgnisationDetailService.deleteOrgnisation(id);
+    public String deleteCustomer(@RequestParam("email") String email) {
+           orgnisationDetailService.deleteOrgnisation(email);
            return "Deleted Succesfully";
     }
     
     @PutMapping("/updateorgnisation")
-    public ResponseEntity<OrgnisationEntity> updateOrgnisation(@RequestParam("id") int id,@RequestParam("orgnName") String orgnName,@RequestParam("orgnPass") String orgnPass){
+    public ResponseEntity<OrgnisationEntity> updateOrgnisation(@RequestParam("email") String email,@RequestParam("orgnName") String orgnName,@RequestParam("orgnPass") String orgnPass){
         OrgnisationEntity orgnisationEntity = new OrgnisationEntity();
         try {
-                orgnisationEntity = orgnisationDetailService.updateOrgnisation(id,orgnName,orgnPass);
+                orgnisationEntity = orgnisationDetailService.updateOrgnisation(email,orgnName,orgnPass);
         }
         catch(Exception e) {
             System.out.println(e);
@@ -121,10 +119,10 @@ public class OrgnisationController {
     }
     
     @PutMapping("/changeorgnisationpassword")
-    public ResponseEntity<OrgnisationEntity> updatePassword(@RequestParam("id") int id,@RequestParam("password") String password){
+    public ResponseEntity<OrgnisationEntity> updatePassword(@RequestParam("String") String email,@RequestParam("password") String password){
         OrgnisationEntity orgnisationEntity = new OrgnisationEntity();
         try {
-                orgnisationEntity = orgnisationDetailService.changeorgnisationPassword(id,password);
+                orgnisationEntity = orgnisationDetailService.changeorgnisationPassword(email,password);
         }
         catch(Exception e) {
             System.out.println(e);

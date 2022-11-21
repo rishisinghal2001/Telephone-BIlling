@@ -9,10 +9,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,10 +23,11 @@ import skit.project.bill_payment.common.DuplicateEntryException;
 import skit.project.bill_payment.entity.CustomerEntity;
 import skit.project.bill_payment.helper.JwtUtil;
 import skit.project.bill_payment.model.JwtRequest;
-import skit.project.bill_payment.model.JwtResponse;
 import skit.project.bill_payment.serviceImpl.CustomerDetailService;
 
+
 @RestController
+@CrossOrigin(origins="*")
 public class CustomerController {
 
 	@Autowired
@@ -38,8 +39,10 @@ public class CustomerController {
 
 	@Autowired
 	private JwtUtil jwtUtil;
+	
 
 	@PostMapping("/customerlogin")
+    @CrossOrigin(origins = "http://127.0.0.1:5500")
 	public ResponseEntity<?> genrateToken(@RequestBody JwtRequest jwtRequest) throws Exception {
 		System.out.println(jwtRequest);
 		try {
@@ -59,24 +62,31 @@ public class CustomerController {
 
 		System.out.println("JWT Token " + token);
 
-		return ResponseEntity.ok(new JwtResponse(token));
+		CustomerDTO customer = new CustomerDTO();
+		customer = customerDetailService.getCustomerById( customerDetailService.getPhoneNoByEmail(jwtRequest.getName()));
+		
+		customer.setCustoToken(token);
+		
+        return new ResponseEntity<CustomerDTO>(customer, HttpStatus.OK);
 	}
 
 
-	@GetMapping("/welcome")
-	public String welcomeString(){
-      return "Hi this is welcome string and this is accessed through token genrated";
-	}
-
-	
 	
    
     @GetMapping("/getcustomer")
-    public ResponseEntity<CustomerDTO> getcustomer(@RequestParam("id") int id) {
-       CustomerDTO customer = customerDetailService.getCustomerById(id);
+    public ResponseEntity<CustomerDTO> getcustomer(@RequestParam("phoneNo") long phoneNo) {
+       CustomerDTO customer = customerDetailService.getCustomerById(phoneNo);
        return new ResponseEntity<CustomerDTO>(customer, HttpStatus.OK);
     }
     
+    @GetMapping("/getcustomerr")
+    public ResponseEntity<CustomerDTO> getcustomer(@RequestParam("email") String email) {
+       long phoneNO = customerDetailService.getPhoneNoByEmail(email);
+       System.out.println(phoneNO );
+       return null;
+    }
+    
+
     
   
     @GetMapping("/getcustomers")
@@ -88,7 +98,7 @@ public class CustomerController {
     public ResponseEntity<CustomerEntity> saveCustomer(@RequestBody CustomerDTO customer) throws DuplicateEntryException {
         CustomerEntity customerEntity = new CustomerEntity();
         try {
-                System.out.println(customerDetailService.customerValidation(customer.getEmail()));
+                System.out.println(customerDetailService.customerValidation(customer.getPhoneNo()));
                 customerEntity = customerDetailService.saveCustomer(customer);
         }
         catch (DuplicateEntryException e) {
@@ -107,36 +117,18 @@ public class CustomerController {
    
    
     @DeleteMapping("/deletecustomer")
-    public String deleteCustomer(@RequestParam("id") int id) {
-           customerDetailService.deleteCustomer(id);
+    public String deleteCustomer(@RequestParam("phoneNo") long phoneNo) {
+           customerDetailService.deleteCustomer(phoneNo);
            return "Deleted Succesfully";
     }
     
-    @PutMapping("/updatecustomer")
-    public ResponseEntity<CustomerEntity> updateCustomer(@RequestParam("id") int id,@RequestParam("fName") String fName,@RequestParam("lName") String lName,@RequestParam("gender") char gender,@RequestParam("password") String password){
-        CustomerEntity customerEntity = new CustomerEntity();
-        try {
-                customerEntity = customerDetailService.updateCustomer(id,fName,lName,gender,password);
-        }
-        catch(Exception e) {
-            System.out.println(e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"INTERNAL_SERVER_ERROR");
-        }
-        return new ResponseEntity<CustomerEntity>(customerEntity,HttpStatus.OK) ;    
+
+    @GetMapping("/getcustomersofanorgrnisation")
+    public Page<CustomerDTO> findallcustomers(@RequestParam("name")String name,@RequestParam("start")int start,@RequestParam("pageSize") int pageSize){
+        return customerDetailService.getAllCustomersByOrgnisationName(name , start,pageSize);
     }
+
     
-    @PutMapping("/changepassword")
-    public ResponseEntity<CustomerEntity> updatePassword(@RequestParam("id") int id,@RequestParam("password") String password){
-        CustomerEntity customerEntity = new CustomerEntity();
-        try {
-                customerEntity = customerDetailService.changeCustomerPassword(id,password);
-        }
-        catch(Exception e) {
-            System.out.println(e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"INTERNAL_SERVER_ERROR");
-        }
-        return new ResponseEntity<CustomerEntity>(customerEntity,HttpStatus.OK) ;    
-    }	
 }
 
 

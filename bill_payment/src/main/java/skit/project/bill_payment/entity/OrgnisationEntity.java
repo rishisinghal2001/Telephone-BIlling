@@ -15,6 +15,7 @@ public class OrgnisationEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer orgnisationId;
+    
     private String orgnisationName;
     private String email;
     private String orgnPassword;

@@ -23,5 +23,16 @@ use bill_payment;
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
  
  
-  ALTER TABLE bill
+ ALTER TABLE bill
  RENAME COLUMN is_deleted to is_delete;
+ 
+ ALTER TABLE bill
+ADD telephone_amount int;
+ALTER TABLE bill
+ADD newpaper_amount int;
+
+ALTER TABLE bill
+ RENAME COLUMN newpaper_amount to newspaper_amount;
+
+alter table bill
+modify column amount int;

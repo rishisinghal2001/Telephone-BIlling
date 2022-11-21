@@ -7,9 +7,35 @@ public class BillDTO extends BaseDTO {
     private String month;
     private boolean status;
     private int amount;
+    private int telephoneAmount;
+    private int newspaperAmount;
     private java.sql.Date billGenrateDate;
     private java.sql.Date billPaymentDate;
     private boolean isDelete;
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public int getTelephoneAmount() {
+        return telephoneAmount;
+    }
+
+    public void setTelephoneAmount(int telephoneAmount) {
+        this.telephoneAmount = telephoneAmount;
+    }
+
+    public int getNewspaperAmount() {
+        return newspaperAmount;
+    }
+
+    public void setNewspaperAmount(int newspaperAmount) {
+        this.newspaperAmount = newspaperAmount;
+    }
 
     public boolean isDelete() {
         return isDelete;

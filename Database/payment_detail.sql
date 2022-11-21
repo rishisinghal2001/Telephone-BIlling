@@ -1,7 +1,5 @@
  use bill_payment;
  show create table payment_detail;
- insert into payment_detail (first_name,Last_name,gender,email)
- values ('rishi','sinhal','m','344ygregsfdvsgrsfdafdhikushdf');
  select * from payment_detail;
  
  
@@ -20,3 +18,7 @@
    FOREIGN KEY (customer_id) REFERENCES customer_detail(customer_id)
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
  
+ ALTER TABLE payment_detail
+ADD amount int;
+ALTER TABLE payment_detail
+ RENAME COLUMN is_deleted to is_delete;

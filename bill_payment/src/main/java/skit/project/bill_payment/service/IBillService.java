@@ -8,6 +8,7 @@ import skit.project.bill_payment.entity.BillEntity;
 
 public interface IBillService {
     
+    public Page<BillDTO> getAllBillByCustomerId(int customerId,int start,int pageSize);
     public Page<BillDTO> getAllBills(int start,int pageSize);
     public BillEntity saveBill(BillDTO bill);
 	public BillDTO getBillById(int  id);

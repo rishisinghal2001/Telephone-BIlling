@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import skit.project.bill_payment.serviceImpl.CustomerDetailService;
 
+
 @Configuration
 @EnableWebSecurity
 public class MySecurityConfig extends WebSecurityConfigurerAdapter {
@@ -42,10 +43,9 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
           http
                .csrf()
                .disable()
-               .cors()
-               .disable()
+                              
                .authorizeRequests()
-               .antMatchers("/customerlogin","/orgnisationlogin").permitAll()
+               .antMatchers("/customerlogin","orgnisationlogin").permitAll()
                .anyRequest().authenticated()
                .and()
                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
