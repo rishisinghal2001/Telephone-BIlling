@@ -24,7 +24,6 @@ import skit.project.bill_payment.common.DuplicateEntryException;
 import skit.project.bill_payment.entity.OrgnisationEntity;
 import skit.project.bill_payment.helper.JwtUtil;
 import skit.project.bill_payment.model.JwtRequest;
-import skit.project.bill_payment.model.JwtResponse;
 import skit.project.bill_payment.serviceImpl.OrgnisationDetailService;
 
 @RestController
@@ -44,6 +43,7 @@ public class OrgnisationController {
 
     
     @PostMapping("/orgnisationlogin")
+    @CrossOrigin(origins = "http://127.0.0.1:5500")
     public ResponseEntity<?> genrateToken(@RequestBody JwtRequest jwtRequest) throws Exception {
         System.out.println(jwtRequest);
         try {
@@ -63,7 +63,13 @@ public class OrgnisationController {
 
         System.out.println("JWT Token " + token);
 
-        return ResponseEntity.ok(new JwtResponse(token));
+
+        OrgnisationDTO orgnisation = new OrgnisationDTO();
+        orgnisation = orgnisationDetailService.getOrgnisationById( jwtRequest.getName());
+        
+        orgnisation.setOrgntoken(token);
+        
+        return new ResponseEntity<OrgnisationDTO>(orgnisation, HttpStatus.OK);
     }
 
     @GetMapping("/getorgnisation")

@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import skit.project.bill_payment.helper.JwtUtil;
 import skit.project.bill_payment.serviceImpl.CustomerDetailService;
+import skit.project.bill_payment.serviceImpl.OrgnisationDetailService;
 
 @Component
 public class JwtAuthenticateFilter extends OncePerRequestFilter{
@@ -28,6 +29,10 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter{
     @Autowired
     @Qualifier("customerdetailservice")
     CustomerDetailService customerDetailService;
+   
+    @Autowired
+    @Qualifier("orgnisationdetailservice")
+    OrgnisationDetailService orgnisationDetailService;
    
    
     @Override
@@ -50,6 +55,10 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter{
             }
 
             UserDetails userDetails = this.customerDetailService.loadUserByUsername(userName);
+            if(userName==null) {
+                 userDetails = this.orgnisationDetailService.loadUserByUsername(userName);                 
+            }
+      
             if(userName!=null && SecurityContextHolder.getContext().getAuthentication()==null){
                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken= new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                

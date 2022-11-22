@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import skit.project.bill_payment.DTO.CustomerDTO;
+import skit.project.bill_payment.DTO.OrgnisationDTO;
 import skit.project.bill_payment.common.DuplicateEntryException;
 import skit.project.bill_payment.common.OrikaObjectMapper;
 import skit.project.bill_payment.entity.CustomerEntity;
@@ -33,6 +34,10 @@ public class CustomerDetailService implements  UserDetailsService , ICustomerDet
     CustomerRepository customerRepository;
     
     @Autowired
+    @Qualifier("orgnisationdetailservice")
+    OrgnisationDetailService orgnisationDetailService;
+    
+    @Autowired
     OrikaObjectMapper orikaObjectMapper;
 
     @Override
@@ -42,6 +47,13 @@ public class CustomerDetailService implements  UserDetailsService , ICustomerDet
         for(int i=0;i<customerList.size();i++) {
             if(customerList.get(i).getEmail().equals(email))
                 return new User(customerList.get(i).getEmail(),customerList.get(i).getUserPassword(), new ArrayList<>());
+        }
+        
+        List <OrgnisationDTO> orgnisationList = new ArrayList<OrgnisationDTO>();
+        orgnisationList = orgnisationDetailService.getAllOrgnisations(0,199).getContent();
+        for(int i=0;i<orgnisationList.size();i++) {
+            if(orgnisationList.get(i).getEmail().equals(email))
+                return new User(orgnisationList.get(i).getEmail(),orgnisationList.get(i).getOrgnPassword(), new ArrayList<>());
         }
         
         throw new UsernameNotFoundException("Customer not found !!");

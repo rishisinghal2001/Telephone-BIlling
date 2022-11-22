@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orgnisation Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <span class="navbar-text">
+          <h1><i>Hey!</i> <b id="name"></b> </h1>
+        </span>
+       
+      </nav>
+    
+      <table class="table table-dark"  id="myTable">
+        <thead>
+          <tr>
+            <th scope="col">Customer Id</th>
+            <th>Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Gender</th>
+            <th scope="col">Phone Numbers</th>
+            <th scope="col">View User</th>
+          </tr>
+        </thead>
+        <tbody id="custlist">
+          
+        </tbody>
+      </table>
+      
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+$(document).ready(function (event){
+  var settings = {
+  "url": "http://localhost:8080/getcustomersofanorgrnisation?name="+localStorage.getItem('name')+"&start=0&pageSize=1000",
+  "method": "GET",
+  "timeout": 0,
+  "headers": {
+    "Authorization": "Bearer "+localStorage.getItem('token')
+  },
+};
+$('#name').html(localStorage.getItem('name'))
+$.ajax(settings).done(function (response) {
+  console.log(response);
+  response.content.forEach(cust =>{
+    $('#custlist').append("<tr>\
+            <th scope='row'>"+ cust.customerId +"</th>\
+            <td>"+ cust.firstName + cust.lastName+"</td>\
+            <td>"+cust.email+"</td>\
+            <td>"+cust.gender+"</td>\
+            <td>"+cust.phoneNo+"</td>\
+            <td>"+ ( "<a href='/organasation/Billview.html?id="+cust.customerId+"&name="+cust.firstName+"%20"+cust.lastName+"' ><button type='submit' id='paybtn' datac='"+cust.customerId+"'  class='btn btn-light'>View Customer </button></a>")+"</td>\
+            </tr>")
+})
+}).fail(function(){
+  alert('error')
+});  
+        
+
+})
+
+
+
+</script>
+
+</html>
