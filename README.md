@@ -1,0 +1,2 @@
+The Telephone & Newspaper Billing System will assist in managing the operations related to billings with more accuracy and efficiency.  So for this, We are designing an online telephone & newspaper billing system project in HTML, CSS, JS/ReactJS, spring boot and MySQL, which consist of two main components i.e. admin and user. 
+Security measure will be adopted by maintaining the  login of  username and the password. 
